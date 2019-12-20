@@ -14,7 +14,9 @@ Parallelized background subtraction for videos written in python using mpi4py nu
 The way it does the background subtraction is it uses median filtering technique to find the median in every frame.
 median filtering can be expensive so we parallelized it to be faster and efficient.
 
-Compared to other approaches mean filtering or  frame subtraction this gives the best results
+Compared to other approaches mean filtering or frame subtraction this gives the best results
+
+To parallelize this approach we split the image into 4 parts and process each part indvidualy, then we collect the result from each part and put them together to form the background image.
 
 ### How to use it
 
