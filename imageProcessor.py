@@ -7,10 +7,14 @@ import constants
 class imageProcessor:
 
     def readAndProcessImages(self, comm, rank):
-        Final_Pixels = np.zeros((constants.BLOCK_HEIGHT_SIZE,constants.BLOCK_WIDTH_SIZE))
+        
         Splitted_Images = comm.recv(source = constants.DATAREADER_NODE)
-        for i in range(constants.BLOCK_HEIGHT_SIZE):
-            for j in range(constants.BLOCK_WIDTH_SIZE):
+        Number_Of_Rows = len(Splitted_Images[0])
+
+        Final_Pixels = np.zeros((Number_Of_Rows,constants.IMAGE_WIDTH))
+
+        for i in range(Number_Of_Rows):
+            for j in range(constants.IMAGE_WIDTH):
                 Sorted_Pixels = []
                 for Img in Splitted_Images:
                     Sorted_Pixels.append(Img[i,j])
