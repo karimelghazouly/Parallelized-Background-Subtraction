@@ -1,6 +1,7 @@
 import numpy as np
 import cv2
 import constants
+import math
 
 class dataReader:
 
@@ -16,33 +17,34 @@ class dataReader:
             self.Images.append(Img)
 
     def splitImages(self, comm):
-        Topleft_Images = []
-        Topright_Images = []
-        Bottomleft_Images = []
-        Bottomright_Images = []
+        Splitted_Images = [[] for i in range(comm.size - 1)]
+        Chunk_Size = math.ceil(constants.IMAGE_HEIGHT / (comm.size - 1))
 
         for i in range(len(self.Images)):
-            Topleft_Images.append(self.Images[i][:120, :160])
-            Topright_Images.append(self.Images[i][:120, 160:])
-            Bottomleft_Images.append(self.Images[i][120:, :160])
-            Bottomright_Images.append(self.Images[i][120:, 160:])
+            BeginRow = 0
+            for splitNumber in range(0, comm.size - 1):
+                EndRow = min(BeginRow + Chunk_Size , constants.IMAGE_HEIGHT)
+                Splitted_Images[splitNumber].append(self.Images[i][BeginRow: EndRow, :])
+                BeginRow = EndRow
+                
+        for i in range(len(Splitted_Images)):
+            comm.send(Splitted_Images[i], dest = i+1)
 
-        print("Split Complete.")
-        comm.send(Topleft_Images, dest = constants.TOPLEFT_NODE)
-        comm.send(Topright_Images, dest = constants.TOPRIGHT_NODE)
-        comm.send(Bottomleft_Images, dest = constants.BOTTOMLEFT_NODE)
-        comm.send(Bottomright_Images, dest = constants.BOTTOMRIGHT_NODE)
         print("Spliited Images Sent.")
 
     def waitForFinalImages(self, comm):
-        TopLeft_Final = comm.recv(source = constants.TOPLEFT_NODE)
-        TopRight_Final = comm.recv(source = constants.TOPRIGHT_NODE)
-        BottomLeft_Final = comm.recv(source = constants.BOTTOMLEFT_NODE)
-        BottomRight_Final = comm.recv(source = constants.BOTTOMRIGHT_NODE)
-        
-        BackgroundTop = np.append(TopLeft_Final, TopRight_Final, axis=1)
-        BackgroundBottom = np.append(BottomLeft_Final, BottomRight_Final, axis=1)
-        Background = np.append( BackgroundTop, BackgroundBottom, axis=0)
 
-        cv2.imshow("Background", np.array(Background, dtype = np.uint8 ))
+        Background = np.zeros((240, 320))
+        BeginRow = 0
+        for i in range(1, comm.size):
+            Recived_Part = comm.recv(source = i)
+            EndRow = BeginRow + len(Recived_Part)
+            Background[BeginRow:EndRow, :] = Recived_Part
+            BeginRow = EndRow
+
+
+        Background = np.array(Background,  dtype = np.uint8)
+        print(Background.shape)
+        print(Background)
+        cv2.imshow("Background", Background)
         cv2.waitKey(0)
