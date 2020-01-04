@@ -16,7 +16,7 @@ median filtering can be expensive so we parallelized it to be faster and efficie
 
 Compared to other approaches mean filtering or frame subtraction this gives the best results
 
-To parallelize this approach we split the image into 4 parts and process each part indvidualy, then we collect the result from each part and put them together to form the background image.
+To parallelize this approach we split the image into "n" parts and process each part indvidualy, then we collect the result from each part and put them together to form the background image.
 
 ### How to use it
 
@@ -26,4 +26,4 @@ To parallelize this approach we split the image into 4 parts and process each pa
 
 3) in the constants.py modify the value to the number of images you have
 
-4) mpiexec -n 5 python3 main.py
+4) mpiexec -n "number of nodes" python3 main.py
