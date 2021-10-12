@@ -29,7 +29,7 @@ netifaces==0.10.4
 numpy==1.17.4
 oauth==1.0.1
 olefile==0.45.1
-opencv-python==4.1.2.30
+opencv-python==4.2.0.32
 pexpect==4.2.1
 Pillow==6.2.0
 protobuf==3.0.0
